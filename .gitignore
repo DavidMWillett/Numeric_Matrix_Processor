@@ -1,0 +1,11 @@
+# Project exclude paths
+/.gradle/
+/Numeric Matrix Processor/task/build/
+/Numeric Matrix Processor/task/out/
+/Numeric Matrix Processor/task/out/production/classes/
+/Problems/Heron's formula/out/
+/Problems/Heron's formula/out/production/classes/
+/Problems/Sine and cosine/out/
+/Problems/Sine and cosine/out/production/classes/
+/Problems/The angle between vectors/out/
+/Problems/The angle between vectors/out/production/classes/
