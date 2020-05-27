@@ -9,16 +9,7 @@ import kotlin.math.roundToLong
 fun main() {
     val scanner = Scanner(System.`in`)
     do {
-        println("1. Add matrices")
-        println("2. Multiply matrix to a constant")
-        println("3. Multiply matrices")
-        println("4. Transpose matrix")
-        println("5. Calculate a determinant")
-        println("6. Inverse matrix")
-        println("0. Exit")
-        print("Your choice: ")
-        val choice = scanner.nextInt(); scanner.nextLine()
-        when (choice) {
+        when (inputAction(scanner)) {
             1 -> addMatrices(scanner)
             2 -> multiplyMatrixByConstant(scanner)
             3 -> multiplyMatrices(scanner)
@@ -30,55 +21,89 @@ fun main() {
     } while (true)
 }
 
+fun inputAction(scanner: Scanner): Int {
+    println("1. Add matrices")
+    println("2. Multiply matrix to a constant")
+    println("3. Multiply matrices")
+    println("4. Transpose matrix")
+    println("5. Calculate a determinant")
+    println("6. Inverse matrix")
+    println("0. Exit")
+    print("Your choice: ")
+    val choice = scanner.nextInt()
+    scanner.nextLine()
+    return choice
+}
+
 // The following functions each implement one of the choices from the main menu. They are responsible for reading
 // input parameters from the console, creating the corresponding Matrix objects, calling the appropriate function
 // of the matrix object and printing the resulting matrix or scalar value.
 
+const val CONSTANT_PROMPT = "Enter constant: "
+
+const val SIZE_PROMPT = "Enter size of matrix: "
+const val SIZE_PROMPT_FIRST = "Enter size of first matrix: "
+const val SIZE_PROMPT_SECOND = "Enter size of second matrix: "
+
+const val ELEMENTS_PROMPT = "Enter matrix:"
+const val ELEMENTS_PROMPT_FIRST = "Enter first matrix:"
+const val ELEMENTS_PROMPT_SECOND = "Enter second matrix:"
+
+const val RESULT_INTRO = "The result is:"
+const val ADDITION_RESULT_INTRO = "The addition result is:"
+const val MULTIPLICATION_RESULT_INTRO = "The multiplication result is:"
+
 fun addMatrices(scanner: Scanner) {
-    val matA = readMatrix(scanner, "Enter size of first matrix: ", "Enter first matrix:")
-    val matB = readMatrix(scanner, "Enter size of second matrix: ", "Enter second matrix:")
-    println("The addition result is:")
+    val matA = readMatrix(scanner, SIZE_PROMPT_FIRST, ELEMENTS_PROMPT_FIRST)
+    val matB = readMatrix(scanner, SIZE_PROMPT_SECOND, ELEMENTS_PROMPT_SECOND)
+    println(ADDITION_RESULT_INTRO)
     println(matA + matB)
 }
 
 fun multiplyMatrixByConstant(scanner: Scanner) {
-    val matrix = readMatrix(scanner, "Enter size of matrix: ", "Enter matrix:")
-    print("Enter constant: ")
+    val matrix = readMatrix(scanner, SIZE_PROMPT, ELEMENTS_PROMPT)
+    print(CONSTANT_PROMPT)
     val constant = scanner.nextDouble(); scanner.nextLine()
-    println("The multiplication result is:")
+    println(MULTIPLICATION_RESULT_INTRO)
     println(matrix * constant)
 }
 
 fun multiplyMatrices(scanner: Scanner) {
-    val matA = readMatrix(scanner, "Enter size of first matrix: ", "Enter first matrix:")
-    val matB = readMatrix(scanner, "Enter size of second matrix: ", "Enter second matrix:")
-    println("The multiplication result is:")
+    val matA = readMatrix(scanner, SIZE_PROMPT_FIRST, ELEMENTS_PROMPT_FIRST)
+    val matB = readMatrix(scanner, SIZE_PROMPT_SECOND, ELEMENTS_PROMPT_SECOND)
+    println(MULTIPLICATION_RESULT_INTRO)
     println(matA * matB)
 }
 
 fun transposeMatrix(scanner: Scanner) {
+    val variant = inputVariant(scanner)
+    val matrix = readMatrix(scanner, SIZE_PROMPT, ELEMENTS_PROMPT)
+    println(RESULT_INTRO)
+    println(matrix.transpose(variant))
+}
+
+fun inputVariant(scanner: Scanner): Int {
     println()
     println("1. Main diagonal")
     println("2. Side diagonal")
     println("3. Vertical line")
     println("4. Horizontal line")
     print("Your choice: ")
-    val choice = scanner.nextInt(); scanner.nextLine()
-    val matrix = readMatrix(scanner, "Enter matrix size: ", "Enter matrix:")
-    println("The result is:")
-    println(matrix.transpose(choice))
+    val choice = scanner.nextInt()
+    scanner.nextLine()
+    return choice
 }
 
 fun calculateDeterminant(scanner: Scanner) {
-    val matrix = readMatrix(scanner, "Enter matrix size: ", "Enter matrix:")
-    println("The result is:")
+    val matrix = readMatrix(scanner, SIZE_PROMPT, ELEMENTS_PROMPT)
+    println(RESULT_INTRO)
     println(matrix.determinant())
     println()
 }
 
 fun inverseMatrix(scanner: Scanner) {
-    val matrix = readMatrix(scanner, "Enter matrix size: ", "Enter matrix:")
-    println("The result is:")
+    val matrix = readMatrix(scanner, SIZE_PROMPT, ELEMENTS_PROMPT)
+    println(RESULT_INTRO)
     println(matrix.inverse())
     println()
 }
@@ -107,9 +132,11 @@ fun readMatrix(scanner: Scanner, sizePrompt: String, elementsPrompt: String): Ma
  * and, optionally, an Array of DoubleArrays specifying its [elements]. The elements are otherwise set to 0.
  * Provides functions to perform various matrix operations and to output a string representation of the matrix.
  */
-class Matrix(private val rows: Int,
-             private val cols: Int,
-             private val elements: Array<DoubleArray> = Array(rows) { DoubleArray(cols) }) {
+class Matrix(
+        private val rows: Int,
+        private val cols: Int,
+        private val elements: Array<DoubleArray> = Array(rows) { DoubleArray(cols) }
+    ) {
 
     override fun toString(): String {
         var result = ""
@@ -166,36 +193,44 @@ class Matrix(private val rows: Int,
     fun transpose(type: Int): Matrix {
         val result = Matrix(cols, rows)
         when (type) {
-            1 -> {  // Main diagonal
-                for (row in 0 until rows) {
-                    for (col in 0 until cols) {
-                        result.elements[col][row] = elements[row][col]
-                    }
-                }
-            }
-            2 -> {  // Side diagonal
-                for (row in 0 until rows) {
-                    for (col in 0 until cols) {
-                        result.elements[cols - col - 1][rows - row - 1] = elements[row][col]
-                    }
-                }
-            }
-            3 -> {  // Vertical line
-                for (row in 0 until rows) {
-                    for (col in 0 until cols) {
-                        result.elements[row][cols - col - 1] = elements[row][col]
-                    }
-                }
-            }
-            4 -> {  // Horizontal line
-                for (row in 0 until rows) {
-                    for (col in 0 until cols) {
-                        result.elements[rows - row - 1][col] = elements[row][col]
-                    }
-                }
-            }
+            1 -> mainDiagonal(result)
+            2 -> sideDiagonal(result)
+            3 -> verticalLine(result)
+            4 -> horizontalLine(result)
         }
         return result
+    }
+
+    private fun mainDiagonal(result: Matrix) {
+        for (row in 0 until rows) {
+            for (col in 0 until cols) {
+                result.elements[col][row] = elements[row][col]
+            }
+        }
+    }
+
+    private fun sideDiagonal(result: Matrix) {
+        for (row in 0 until rows) {
+            for (col in 0 until cols) {
+                result.elements[cols - col - 1][rows - row - 1] = elements[row][col]
+            }
+        }
+    }
+
+    private fun verticalLine(result: Matrix) {
+        for (row in 0 until rows) {
+            for (col in 0 until cols) {
+                result.elements[row][cols - col - 1] = elements[row][col]
+            }
+        }
+    }
+
+    private fun horizontalLine(result: Matrix) {
+        for (row in 0 until rows) {
+            for (col in 0 until cols) {
+                result.elements[rows - row - 1][col] = elements[row][col]
+            }
+        }
     }
 
     fun determinant(): Double {
